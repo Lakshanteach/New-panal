@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WhatsApp Bot Hosting Admin Panel</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1, h2 { color: #333; }
+    input { padding: 8px; margin: 5px 0; width: 250px; }
+    button { padding: 8px 16px; margin-top: 10px; cursor: pointer; }
+    ul { list-style-type: none; padding: 0; }
+    li { background: #f0f0f0; margin: 5px 0; padding: 10px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Admin Panel</h1>
+  
+  <h2>Add User</h2>
+  <form id="addUserForm">
+    <input type="text" id="username" placeholder="Username" required /><br/>
+    <input type="password" id="password" placeholder="Password" required /><br/>
+    <input type="text" id="botLink" placeholder="Bot Link" required /><br/>
+    <button type="submit">Add User</button>
+  </form>
+  
+  <h2>Users List</h2>
+  <ul id="usersList"></ul>
+
+  <script>
+    async function fetchUsers() {
+      const res = await fetch('/api/users');
+      const users = await res.json();
+      const list = document.getElementById('usersList');
+      list.innerHTML = '';
+      users.forEach(user => {
+        const li = document.createElement('li');
+        li.textContent = `ID:${user.id} | ${user.username} | ${user.botLink} | Status: ${user.status}`;
+        list.appendChild(li);
+      });
+    }
+
+    document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const botLink = document.getElementById('botLink').value;
+
+      const res = await fetch('/api/user/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, botLink }),
+      });
+      const data = await res.json();
+      alert(data.message);
+      fetchUsers();
+      e.target.reset();
+    });
+
+    fetchUsers();
+  </script>
+</body>
+</html>
